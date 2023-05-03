@@ -1,0 +1,11 @@
+module effect/types
+
+type EventData {
+    Base()
+}
+
+type Promise[V] {
+    Fullfilled(v: V)
+    Waiting()
+    Error()
+}

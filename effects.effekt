@@ -1,6 +1,10 @@
 module reactive/effects
 
+import reactive/types
+
 effect Async {
-    def await(): Unit
+    def await(): EventData
     def done(): Unit
 }
+
+effect PollEvents(): Unit
