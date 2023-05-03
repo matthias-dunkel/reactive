@@ -1,9 +1,31 @@
 module reactive/interleave
 
 import immutable/option
+import reactive/types
 import reactive/effects
 
-def interleave{task1: => Unit / Async} {task2: => Unit / Async}: Unit / Async = {
+def asyncTask{task: => Unit / Async}: Unit / {Async, PollEvents} = {
+    var p = fun(){()}
+    p = fun() {
+        try {
+            task()
+            do done()
+        } with Async {
+            def await() = p = fun(){ resume(Base()) }
+            def done() = do done()
+        }
+    }
+
+    def loop(): Unit = {
+        do await()
+        p()
+        loop()
+    }
+
+    loop()
+}
+
+def interleave{ task1: => Unit / Async} { task2: => Unit / Async }: Unit / Async = {
     var p1 = fun(){()}
     var p2 = fun(){()}
 
@@ -11,7 +33,7 @@ def interleave{task1: => Unit / Async} {task2: => Unit / Async}: Unit / Async = 
         task1()
         do done()
         } with Async {
-            def await() = p1 = fun(){ resume(()) }
+            def await() = p1 = fun(){ resume(Base()) }
             def done() = do done()
         }
     }
@@ -20,7 +42,7 @@ def interleave{task1: => Unit / Async} {task2: => Unit / Async}: Unit / Async = 
         task2()
         do done()
         } with Async {
-            def await() = p2 = fun(){resume(())}
+            def await() = p2 = fun(){ resume(Base()) }
             def done() = do done()
         }
     }
@@ -55,10 +77,7 @@ def run{f: => Unit / {Async}}: Unit = {
     try{
         f()
     } with Async {
-        def await() = resume(())
+        def await() = resume(Base())
         def done() = ()
     }
 }
-
-
-
