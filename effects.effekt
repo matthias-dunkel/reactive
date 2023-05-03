@@ -1,0 +1,6 @@
+module reactive/effects
+
+effect Async {
+    def await(): Unit
+    def done(): Unit
+}

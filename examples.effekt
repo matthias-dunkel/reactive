@@ -1,0 +1,34 @@
+module reactive/examples
+
+import reactive/effects
+import reactive/interleave
+
+def ex1() = {
+    do await()
+    println("a")
+    do await()
+    println("b")
+}
+
+def ex2() = {
+    do await()
+    println("1")
+    do await()
+    println("2")
+}
+
+def ex3() = {
+    oneOfTerm{ex1()}{ex2()}
+}
+
+def ex4() = {
+    oneOfTerm{ex3()}{
+        do await()
+        println("X")
+        do await()
+        println("Y")
+        do await()
+        println("Z")
+        }
+}
+

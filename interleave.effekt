@@ -1,8 +1,7 @@
+module reactive/interleave
+
 import immutable/option
-effect Async {
-    def await(): Unit
-    def done(): Unit
-}
+import reactive/effects
 
 def interleave{task1: => Unit / Async} {task2: => Unit / Async}: Unit / Async = {
     var p1 = fun(){()}
@@ -61,35 +60,5 @@ def run{f: => Unit / {Async}}: Unit = {
     }
 }
 
-def ex1() = {
-    do await()
-    println("a")
-    do await()
-    println("b")
-}
 
-def ex2() = {
-    do await()
-    println("1")
-    do await()
-    println("2")
-}
 
-def ex3() = {
-    oneOfTerm{ex1()}{ex2()}
-}
-
-def ex4() = {
-    oneOfTerm{ex3()}{
-        do await()
-        println("X")
-        do await()
-        println("Y")
-        do await()
-        println("Z")
-        }
-}
-
-def main() = {
-    run{ex1}
-}
