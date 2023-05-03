@@ -1,0 +1,95 @@
+import immutable/option
+effect Async {
+    def await(): Unit
+    def done(): Unit
+}
+
+def interleave{task1: => Unit / Async} {task2: => Unit / Async}: Unit / Async = {
+    var p1 = fun(){()}
+    var p2 = fun(){()}
+
+    p1 = fun(){ try {
+        task1()
+        do done()
+        } with Async {
+            def await() = p1 = fun(){ resume(()) }
+            def done() = do done()
+        }
+    }
+
+    p2 = fun(){ try {
+        task2()
+        do done()
+        } with Async {
+            def await() = p2 = fun(){resume(())}
+            def done() = do done()
+        }
+    }
+
+    def loop(): Unit = {
+        do await()
+        p1()
+        p2()
+        loop()
+    }
+    loop()
+}
+
+def bothHaveTerm{ task1: => Unit / Async } { task2: => Unit / Async }: Unit / Async = {
+    var oneHasFinished = false;
+    try {
+        interleave{task1}{task2}
+    } with Async {
+        def await() = resume(do await())
+        def done() = if(oneHasFinished){do done()} else {oneHasFinished = true; resume(())}
+    }
+}
+
+def oneOfTerm{ task1: => Unit / Async } {task2: => Unit / Async }: Unit / Async = try {
+   interleave{task1}{task2}
+} with Async {
+    def await() = resume(do await())
+    def done() = do done()
+}
+
+def run{f: => Unit / {Async}}: Unit = {
+    try{
+        f()
+    } with Async {
+        def await() = resume(())
+        def done() = ()
+    }
+}
+
+def ex1() = {
+    do await()
+    println("a")
+    do await()
+    println("b")
+}
+
+def ex2() = {
+    do await()
+    println("1")
+    do await()
+    println("2")
+}
+
+def ex3() = {
+    oneOfTerm{ex1()}{ex2()}
+}
+
+def ex4() = {
+    oneOfTerm{ex3()}{
+        do await()
+        println("X")
+        do await()
+        println("Y")
+        do await()
+        println("Z")
+        }
+}
+
+def main() = {
+    run{ex1}
+}
