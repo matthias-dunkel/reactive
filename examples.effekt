@@ -1,33 +1,35 @@
 module reactive/examples
 
+import reactive/types
 import reactive/effects
-import reactive/interleave
+import reactive/scheduling
+import reactive/asyncTask
 
 def ex1() = {
-    do await()
+    do await(fun(){Some(Base())})
     println("a")
-    do await()
+    do await(fun(){Some(Base())})
     println("b")
 }
 
 def ex2() = {
-    do await()
+    do await(fun(){Some(Base())})
     println("1")
-    do await()
+    do await(fun(){Some(Base())})
     println("2")
 }
 
 def ex3() = {
-    oneOfTerm{ex1()}{ex2()}
+    oneIsDone{ex1()}{ex2()}
 }
 
 def ex4() = {
-    oneOfTerm{ex3()}{
-        do await()
+    oneIsDone{ex3()}{
+        do await(fun(){Some(Base())})
         println("X")
-        do await()
+        do await(fun(){Some(Base())})
         println("Y")
-        do await()
+        do await(fun(){Some(Base())})
         println("Z")
         }
 }
