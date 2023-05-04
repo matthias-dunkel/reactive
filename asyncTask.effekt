@@ -1,0 +1,35 @@
+module reactive/asyncTask
+import immutable/option
+import reactive/types
+import reactive/effects
+
+def asyncTask{ task: => Unit / Async }: Unit / {Scheduling} = {
+    // Stage 1: Initialize process
+    var p = fun(){()} 
+
+    // Stage 2: try task
+    p = fun(){ 
+        try {
+            task()
+            do done()
+        } with Async {
+                              // Stage 3: Await
+            def await(poll) = p = fun() { 
+                poll() match {
+                                   // Stay in Stage 3.
+                    case None() => p = p 
+                                   // Go back to Stage 2
+                    case Some(v) => resume(v) 
+                }
+            }
+        }
+    }
+
+    def loop(): Unit = {
+        do tick()
+        p()
+        loop()
+    }
+
+    loop()
+}
