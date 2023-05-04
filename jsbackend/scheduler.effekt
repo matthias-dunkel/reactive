@@ -1,0 +1,14 @@
+module reactive/jsbackend/scheduler
+
+import reactive/effects
+
+extern io def ex_nextIteration[A]{f: => A}: Unit = "setTimeout(() => f().run(), 0)"
+
+def finalWithJSBackend{f: => Unit / Scheduling}: Unit = {
+    try{
+        f()
+    } with Scheduling {
+        def done() = ()
+        def tick() = ex_nextIteration{resume(())}
+    }
+}
