@@ -1,0 +1,15 @@
+import reactive/asyncTask
+import reactive/effects
+import reactive/types
+import reactive/scheduling
+import reactive/jsbackend/scheduler
+//import reactive/jsbackend/timer
+
+def main() = {
+    finalWithJSBackend {
+        asyncTask{
+            do await(fun(){Some(Base())})
+            println("awaited")
+        }
+    }
+}
