@@ -1,4 +1,5 @@
 module effect/types
+import immutable/option
 
 type EventData {
     Base()
@@ -9,3 +10,5 @@ type Promise[V] {
     Waiting()
     Error()
 }
+
+type Poll = => Option[EventData] at {}

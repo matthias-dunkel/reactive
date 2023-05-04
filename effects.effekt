@@ -1,10 +1,9 @@
 module reactive/effects
 
 import reactive/types
-import immutable/option
 
 effect Async {
-    def await(poll: => Option[EventData] at {}): EventData
+    def await(poll: Poll): EventData
 }
 
 effect Scheduling {
