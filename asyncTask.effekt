@@ -6,7 +6,6 @@ import reactive/effects
 def asyncTask{ task: => Unit / Async }: Unit / {Scheduling} = {
     // Stage 1: Initialize process
     var p = fun(){()} 
-
     // Stage 2: try task
     p = fun(){ 
         try {
@@ -26,8 +25,8 @@ def asyncTask{ task: => Unit / Async }: Unit / {Scheduling} = {
     }
 
     def loop(): Unit = {
-        do tick()
         p()
+        do tick()
         loop()
     }
 
