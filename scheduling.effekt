@@ -1,0 +1,68 @@
+module reactive/interleave
+
+import immutable/option
+import reactive/types
+import reactive/effects
+import reactive/asyncTask
+
+def interleave{task1: => Unit / {Async, Scheduling}} {task2: => Unit / {Async, Scheduling}} = {
+    var p1 = fun(){()}
+    var p2 = fun(){()}
+
+    p1 = fun(){
+        try{
+        asyncTask{task1()}
+    } with Scheduling {
+        def done() = do done()
+        def tick() = p1 = fun(){resume(())}
+    }}
+
+    p2 = fun(){
+            try{
+            asyncTask{task2()}
+        } with Scheduling {
+            def done() = do done()
+            def tick() = p2 = fun(){resume(())}
+        }
+    }
+
+    def loop(): Unit = {
+        p1()
+        p2()
+        loop()
+    }
+
+    loop()
+}
+
+def bothAreDone{ task1: => Unit / {Async, Scheduling} } { task2: => Unit / {Scheduling, Async} }: Unit / Scheduling = {
+    var oneHasFinished = false;
+    try {
+        interleave{task1}{task2}
+    } with Scheduling {
+        def done() = if(oneHasFinished){do done()} else {oneHasFinished = true; resume(())}
+        def tick() = {do tick(); resume(())}
+    }
+}
+
+def oneIsDone{ task1: => Unit / Async } {task2: => Unit / Async }: Unit / Scheduling = try {
+    interleave
+    {
+        asyncTask{task1}
+    }
+    {
+        asyncTask{task2}
+    }
+} with Scheduling {
+    def tick() = { do tick(); resume(()) }
+    def done() = do done()
+}
+
+def run{f: => Unit / { Scheduling }}: Unit = {
+    try{
+        f()
+    } with Scheduling {
+       def done() = ()
+       def tick() = resume(())
+    }
+}
