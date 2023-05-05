@@ -13,13 +13,17 @@ def asyncTask{ task: => Unit / Async }: Unit / {Scheduling} = {
             do done()
         } with Async {
                               // Stage 3: Await
-            def await(poll) = p = fun() { 
-                poll() match {
-                                   // Stay in Stage 3.
-                    case None() => p = p 
-                                   // Go back to Stage 2
-                    case Some(v) => resume(v) 
+            def await(poll) = {
+                var temp = fun(){()}
+                temp = fun() {
+                    poll() match {
+                                       // Stay in Stage 3.
+                        case None() => p = temp
+                                       // Go back to Stage 2
+                        case Some(v) => resume(v) 
+                    }
                 }
+                p = temp
             }
         }
     }
