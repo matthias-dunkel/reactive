@@ -14,7 +14,7 @@ def interleave{task1: => Unit / {Async, Scheduling}} {task2: => Unit / {Async, S
         asyncTask{task1()}
     } with Scheduling {
         def done() = do done()
-        def tick() = p1 = fun(){resume(())}
+        def tick() = {do tick(); p1 = fun(){resume(())}}
     }}
 
     p2 = fun(){
@@ -22,7 +22,7 @@ def interleave{task1: => Unit / {Async, Scheduling}} {task2: => Unit / {Async, S
             asyncTask{task2()}
         } with Scheduling {
             def done() = do done()
-            def tick() = p2 = fun(){resume(())}
+            def tick() = { do tick(); p2 = fun(){resume(())} }
         }
     }
 
