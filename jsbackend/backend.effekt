@@ -23,15 +23,15 @@ def poll(event: JSEvent): Option[EventData] = {
 
     if(status == "fullfilled") {
         val d_type = event.getType()
-
+        val data   = event.getData()
         if(d_type == "int"){
-            Some(Base())
+            Some(IntData(data))
         } else {
-            Some(Base()) // Error!
+            Some(Error("Unkown Datatype. JS Backend corrupted."))
         }
     } else if(status == "error") {
         val data = event.getData[String]()
-        Some(Base())
+        Some(Error(data))
     } else {
         None()
     }

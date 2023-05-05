@@ -3,12 +3,8 @@ import immutable/option
 
 type EventData {
     Base()
-}
-
-type Promise {
-    Fullfilled(data: EventData )
-    Waiting()
+    IntData(n: Int)
     Error(msg: String)
 }
 
-type Poll = => Promise at {}
+type Poll = => Option[EventData] at {io}
