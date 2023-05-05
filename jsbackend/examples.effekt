@@ -3,12 +3,14 @@ import reactive/effects
 import reactive/types
 import reactive/scheduling
 import reactive/jsbackend/scheduler
+import reactive/jsbackend/backend
 //import reactive/jsbackend/timer
 
 def main() = {
     finalWithJSBackend {
         asyncTask{
-            do await(fun(){Some(Base())})
+            var timer = createTimer()
+            do await(timer.waitFor(2000))
             println("awaited")
         }
     }
