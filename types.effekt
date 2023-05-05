@@ -5,10 +5,10 @@ type EventData {
     Base()
 }
 
-type Promise[V] {
-    Fullfilled(v: V)
+type Promise {
+    Fullfilled(data: EventData )
     Waiting()
-    Error()
+    Error(msg: String)
 }
 
-type Poll = => Option[EventData] at {}
+type Poll = => Promise at {}
