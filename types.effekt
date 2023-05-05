@@ -1,4 +1,4 @@
-module effect/types
+module reactive/types
 import immutable/option
 
 type EventData {
