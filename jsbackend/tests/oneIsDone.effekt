@@ -1,0 +1,22 @@
+import reactive/types
+import reactive/scheduling  
+import reactive/effects
+import reactive/jsbackend/backend
+import reactive/jsbackend/scheduler
+
+def main() = {
+    finalWithJSBackend{
+        var timer = createTimer()
+        oneIsDone{
+            do await(timer.waitFor(200))
+            println("a")
+            do await(timer.waitFor(200))
+            println("b")
+        }{  
+            do await(timer.waitFor(200))
+            println("1")
+            do await(timer.waitFor(200))
+            println("2")
+        }
+    }
+}

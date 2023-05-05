@@ -1,0 +1,26 @@
+module reactive/jsbackend/tests/asyncTask
+
+import reactive/asyncTask
+import reactive/effects
+import reactive/types
+import reactive/jsbackend/scheduler
+import reactive/jsbackend/backend
+
+def main() = {
+    finalWithJSBackend{
+        var timer = createTimer()
+        asyncTask{
+            println("await")
+            do await(timer.waitFor(200))
+            println("awaited")
+        }
+    }
+    finalWithJSBackend{
+        var timer = createTimer()
+        asyncTask{
+            println("await")
+            do await(timer.waitFor(200))
+            println("awaited")
+        }
+    }
+}
