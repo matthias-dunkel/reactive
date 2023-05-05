@@ -1,0 +1,43 @@
+module reactive/jsbackend/backend
+import reactive/types
+
+extern include "./backend.js"
+
+extern type JSTimer
+extern type JSEvent
+
+extern io def createTimer(): JSTimer = "new Timer()"
+
+extern io def getEvent(timer: JSTimer, id: Int): JSEvent = "timer.getEvent(id)"
+
+extern io def ex_waitFor(timer: JSTimer, ms: Int): Int = "timer.waitFor(ms)"
+
+extern pure def getStatus(e: JSEvent): String = "e.status"
+
+extern pure def getData[A](e: JSEvent): A = "e.data"
+
+extern pure def getType(e: JSEvent): String = "e.type"
+
+def poll(event: JSEvent): Option[EventData] = {
+    val status = event.getStatus()
+
+    if(status == "fullfilled") {
+        val d_type = event.getType()
+
+        if(d_type == "int"){
+            Some(Base())
+        } else {
+            Some(Base()) // Error!
+        }
+    } else if(status == "error") {
+        val data = event.getData[String]()
+        Some(Base())
+    } else {
+        None()
+    }
+}
+
+def waitFor(timer: JSTimer, ms: Int): Poll = {
+    val id = ex_waitFor(timer, ms)
+    fun(){ timer.getEvent(id).poll() }
+}
