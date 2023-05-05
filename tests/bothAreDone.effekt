@@ -1,0 +1,19 @@
+import reactive/types
+import reactive/scheduling  
+import reactive/effects
+
+def main() = {
+    run{
+        bothAreDone{
+            do await(fun(){Some(Base())})
+            println("a")
+            do await(fun(){Some(Base())})
+            println("b")
+        }{
+            do await(fun(){Some(Base())})
+            println("1")
+            do await(fun(){Some(Base())})
+            println("2")
+        }
+    }
+}

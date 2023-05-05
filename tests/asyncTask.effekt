@@ -1,0 +1,23 @@
+module reactive/tests/asyncTask
+
+import reactive/asyncTask
+import reactive/scheduling
+import reactive/effects
+import reactive/types
+
+def main() = {
+    run{
+        asyncTask{
+            println("await")
+            do await(fun(){Some(Base())})
+            println("awaited")
+        }
+    }
+    run{
+        asyncTask{
+            println("await")
+            do await(fun(){Some(Error("Error"))})
+            println("awaited")
+        }
+    }
+}
