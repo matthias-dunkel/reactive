@@ -10,7 +10,7 @@ class Observable {
         return this.eventCounter
     }
 
-    putData(id, data, type){
+    putData(id, type, data){
         if(id in this.events){
             if(this.events[id].status !== "fullfilled"){
                 this.events[id].data = data
@@ -45,6 +45,24 @@ class Timer extends Observable {
                 Date.now() 
             )
         }, ms)
+        return id
+    }
+}
+
+class Input extends Observable {
+    constructor() {
+        super()
+        this.readline = require('readline')
+        this.rl = this.readline.createInterface(process.stdin, process.stdout);
+    }
+
+    onInput() {
+        let id = this.addEvent()
+        this.rl.on("line", data => {
+                this.putData(id, "string", data)
+                this.rl.close()
+        })
+    
         return id
     }
 }

@@ -4,11 +4,21 @@ import reactive/types
 extern include "./backend.js"
 
 extern type JSTimer
+extern type JSInput
+extern type JSObservable
 extern type JSEvent
 
 extern io def createTimer(): JSTimer = "new Timer()"
 
-extern io def getEvent(timer: JSTimer, id: Int): JSEvent = "timer.getEvent(id)"
+extern io def createInput(): JSInput = "new Input()"
+
+extern io def toObservable(t: JSTimer): JSObservable = "t"
+
+extern io def toObservable(i: JSInput): JSObservable = "i"
+
+extern io def getEvent(timer: JSObservable, id: Int): JSEvent = "timer.getEvent(id)"
+
+extern io def ex_onInput(input: JSInput): Int = "input.onInput()"
 
 extern io def ex_waitFor(timer: JSTimer, ms: Int): Int = "timer.waitFor(ms)"
 
@@ -23,10 +33,13 @@ def poll(event: JSEvent): Option[EventData] = {
 
     if(status == "fullfilled") {
         val d_type = event.getType()
-        val data   = event.getData()
+       
         if(d_type == "int"){
-            Some(IntData(data))
-        } else {
+            Some(IntData(event.getData()))
+         }else if(d_type == "string"){
+            Some(StringData(event.getData()))
+         } 
+        else {
             Some(Error("Unkown Datatype. JS Backend corrupted."))
         }
     } else if(status == "error") {
@@ -39,5 +52,10 @@ def poll(event: JSEvent): Option[EventData] = {
 
 def waitFor(timer: JSTimer, ms: Int): Poll = {
     val id = ex_waitFor(timer, ms)
-    fun(){ timer.getEvent(id).poll() }
+    fun(){ timer.toObservable().getEvent(id).poll() }
+}
+
+def onInput(input: JSInput): Poll = {
+    val id = ex_onInput(input)
+    fun(){input.toObservable().getEvent(id).poll()}
 }
