@@ -5,7 +5,7 @@ import reactive/types
 import reactive/effects
 import reactive/asyncTask
 
-def interleave{task1: => Unit / {Async, Scheduling}} {task2: => Unit / {Async, Scheduling}} = {
+def interleave{task1: => Unit / {Async, Scheduling}} {task2: => Unit / {Async, Scheduling}}: Unit / Scheduling = {
     var p1 = fun(){()}
     var p2 = fun(){()}
 
@@ -57,6 +57,13 @@ def oneIsDone{ task1: => Unit / Async } {task2: => Unit / Async }: Unit / Schedu
     def tick() = { do tick(); resume(()) }
     def done() = do done()
 }
+
+def forever { task: => Unit / Scheduling }: Unit / Scheduling = try {
+    task()
+} with Scheduling {
+    def tick() = { do tick(); resume(())}
+    def done() = forever{ task }
+} 
 
 def run{f: => Unit / { Scheduling }}: Unit = {
     try{
