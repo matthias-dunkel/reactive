@@ -1,3 +1,4 @@
+module reactive/jsbackend/tests/input
 import reactive/asyncTask
 import reactive/types
 import reactive/scheduling  

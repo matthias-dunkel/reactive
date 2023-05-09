@@ -1,3 +1,4 @@
+module reactive/jsbackend/tests/bothAreDone
 import reactive/types
 import reactive/scheduling  
 import reactive/effects
