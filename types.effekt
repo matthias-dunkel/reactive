@@ -4,6 +4,7 @@ import immutable/option
 type EventData {
     Base()
     IntData(n: Int)
+    StringData(text: String)
     Error(msg: String)
 }
 
