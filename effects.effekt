@@ -7,6 +7,5 @@ effect Async {
 }
 
 effect Scheduling {
-    def done(): Unit
     def tick(): Unit
 }

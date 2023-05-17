@@ -3,14 +3,14 @@ import immutable/option
 import reactive/types
 import reactive/effects
 
-def asyncTask{ task: => Unit / Async }: Unit / {Scheduling} = {
+def asyncTask[T]{ task: => T / Async }: T / {Scheduling} = {
     // Stage 1: Initialize process
     var p = fun(){()} 
+    var r = None()
     // Stage 2: try task
     p = fun(){ 
         try {
-            task()
-            do done()
+            r = Some(task())
         } with Async {
                               // Stage 3: Await
             def await(poll) = {
@@ -20,18 +20,20 @@ def asyncTask{ task: => Unit / Async }: Unit / {Scheduling} = {
                                        // Stay in Stage 3.
                         case None() => p = temp
                                        // Go back to Stage 2
-                        case Some(v) => resume(v) 
+                        case Some(v) => p = fun(){ resume(v) }
                     }
                 }
                 p = temp
             }
         }
     }
-
-    def loop(): Unit = {
+    
+    def loop(): T = {
         p()
-        do tick()
-        loop()
+        r match {
+            case Some(d) => d
+            case None() => do tick(); loop()
+        }
     }
 
     loop()

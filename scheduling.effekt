@@ -5,71 +5,95 @@ import reactive/types
 import reactive/effects
 import reactive/asyncTask
 
-def interleave{task1: => Unit / {Async, Scheduling}} {task2: => Unit / {Async, Scheduling}}: Unit / Scheduling = {
+def bothAreDone[T1, T2] {task1: => T1 / {Async, Scheduling}} {task2: => T2 / {Async, Scheduling}}: Tuple2[T1, T2]  / Scheduling = {
     var p1 = fun(){()}
     var p2 = fun(){()}
+    var r1 = None()
+    var r2 = None()
 
     p1 = fun(){
-        try{
-        asyncTask{task1()}
-    } with Scheduling {
-        def done() = do done()
-        def tick() = {do tick(); p1 = fun(){resume(())}}
-    }}
-
-    p2 = fun(){
-            try{
-            asyncTask{task2()}
+        try {
+            r1 = Some(asyncTask{task1()})
         } with Scheduling {
-            def done() = do done()
-            def tick() = { do tick(); p2 = fun(){resume(())} }
+            def tick() = { p1 = fun(){resume(())}}
         }
     }
 
-    def loop(): Unit = {
+    p2 = fun(){
+        try{
+            r2 = Some(asyncTask{task2()})
+        } with Scheduling {
+            def tick() = { p2 = fun(){resume(())} }
+        }
+    }
+
+    def loop(): Tuple2[T1, T2] = {
+        println(r1)
+        println(r2)
         p1()
         p2()
-        loop()
+        
+        r1 match {
+            case None() => do tick(); loop()
+            case Some(d1) => r2 match {
+                case None() => do tick(); loop()
+                case Some(d2) => Tuple2(d1, d2)
+            }
+        }
     }
 
     loop()
 }
 
-def bothAreDone{ task1: => Unit / {Async, Scheduling} } { task2: => Unit / {Scheduling, Async} }: Unit / Scheduling = {
-    var oneHasFinished = false;
-    try {
-        interleave{task1}{task2}
-    } with Scheduling {
-        def done() = if(oneHasFinished){do done()} else {oneHasFinished = true; resume(())}
-        def tick() = {do tick(); resume(())}
+
+def oneIsDone[T1, T2]{ task1: => T1 / Async } {task2: => T2 / Async }: Either[T1, T2] / Scheduling = {
+    var p1 = fun(){()}
+    var p2 = fun(){()}
+    var r1 = None()
+    var r2 = None()
+
+    p1 = fun(){
+        try {
+            r1 = Some(asyncTask{task1()})
+        } with Scheduling {
+            def tick() = { p1 = fun(){ resume(()) }}
+        }
     }
+
+    p2 = fun(){
+            try {
+            r2 = Some(asyncTask{task2()})
+        } with Scheduling {
+            def tick() = { p2 = fun(){ resume(())} }
+        }
+    }
+
+    def loop(): Either[T1, T2] = {
+        p1();
+        r1 match {
+            case Some(d1) => Left(d1)
+            case None() => 
+                p2();
+                r2 match {
+                    case Some(d2) => Right(d2)
+                    case None() =>  do tick(); loop()
+                }
+        }
+    }
+    loop()
 }
 
-def oneIsDone{ task1: => Unit / Async } {task2: => Unit / Async }: Unit / Scheduling = try {
-    interleave
-    {
-        asyncTask{task1}
-    }
-    {
-        asyncTask{task2}
-    }
-} with Scheduling {
-    def tick() = { do tick(); resume(()) }
-    def done() = do done()
-}
-
-def forever { task: => Unit / Scheduling }: Unit / Scheduling = try {
+def forever[T] { task: => T / Scheduling }: Unit / Scheduling = try {
     task()
+    forever { task }
 } with Scheduling {
     def tick() = { do tick(); resume(())}
-    def done() = forever{ task }
 } 
 
-def run{f: => Unit / { Scheduling }}: Unit = {
+def run[T]{task: => T / { Scheduling }}: T = {
     try{
-        f()
+        task()
     } with Scheduling {
-       def done() = ()
        def tick() = resume(())
     }
 }
