@@ -1,0 +1,30 @@
+module reactive/internal
+import immutable/list
+import reactive/effects
+import reactive/types
+import reactive/asyncTask
+import reactive/scheduling
+
+def waitTicks(numberOfTicks: Int): Poll = {
+    var counter in global = numberOfTicks
+    fun() {
+        if(counter == 0) {
+            Some(Base())
+        } else {
+            counter = counter - 1
+            None()
+        }
+    } 
+}
+
+def getDataAfterTicks(data: EventData, numberOfTicks: Int): Poll = {
+    var counter in global = numberOfTicks
+    fun(){
+        if(counter == 0){
+            Some(data)
+        }else{
+            counter = counter - 1
+            None()
+        }
+    }
+}
