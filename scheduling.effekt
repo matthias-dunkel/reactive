@@ -5,7 +5,7 @@ import reactive/types
 import reactive/effects
 import reactive/asyncTask
 
-def bothAreDone[T1, T2] {task1: => T1 / {Async, Scheduling}} {task2: => T2 / {Async, Scheduling}}: Tuple2[T1, T2]  / Scheduling = {
+def bothAreDone[T1, T2] {task1: => T1 / Scheduling} {task2: => T2 / Scheduling}: Tuple2[T1, T2]  / Scheduling = {
     var p1 = fun(){()}
     var p2 = fun(){()}
     var r1 = None()
@@ -28,15 +28,14 @@ def bothAreDone[T1, T2] {task1: => T1 / {Async, Scheduling}} {task2: => T2 / {As
     }
 
     def loop(): Tuple2[T1, T2] = {
-        println(r1)
-        println(r2)
-        p1()
-        p2()
-        
         r1 match {
-            case None() => do tick(); loop()
+            case None() => r2 match {
+                    case None() => p1(); p2(); do tick(); loop()
+                    case Some(d) => p1(); do tick(); loop()
+                }
+    
             case Some(d1) => r2 match {
-                case None() => do tick(); loop()
+                case None() => p2(); do tick(); loop()
                 case Some(d2) => Tuple2(d1, d2)
             }
         }
@@ -46,7 +45,7 @@ def bothAreDone[T1, T2] {task1: => T1 / {Async, Scheduling}} {task2: => T2 / {As
 }
 
 
-def oneIsDone[T1, T2]{ task1: => T1 / Async } {task2: => T2 / Async }: Either[T1, T2] / Scheduling = {
+def oneIsDone[T1, T2]{ task1: => T1 / Scheduling } {task2: => T2 / Scheduling }: Either[T1, T2] / Scheduling = {
     var p1 = fun(){()}
     var p2 = fun(){()}
     var r1 = None()
@@ -54,7 +53,7 @@ def oneIsDone[T1, T2]{ task1: => T1 / Async } {task2: => T2 / Async }: Either[T1
 
     p1 = fun(){
         try {
-            r1 = Some(asyncTask{task1()})
+            r1 = Some( task1() )
         } with Scheduling {
             def tick() = { p1 = fun(){ resume(()) }}
         }
@@ -83,7 +82,7 @@ def oneIsDone[T1, T2]{ task1: => T1 / Async } {task2: => T2 / Async }: Either[T1
     loop()
 }
 
-def forever[T] { task: => T / Scheduling }: Unit / Scheduling = try {
+def forever[T] { task: => T / Scheduling }: Nothing / Scheduling = try {
     task()
     forever { task }
 } with Scheduling {
