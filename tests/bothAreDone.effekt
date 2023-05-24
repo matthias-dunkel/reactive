@@ -1,19 +1,24 @@
 import reactive/types
 import reactive/scheduling  
 import reactive/effects
-
+import reactive/asyncTask
 def main() = {
     run{
         bothAreDone{
-            do await(fun(){Some(Base())})
-            println("a")
-            do await(fun(){Some(Base())})
-            println("b")
-        }{
+            asyncTask{
+                do await(fun(){Some(Base())})
+                println("a")
+                do await(fun(){Some(Base())})
+                println("b")
+            }
+        }{asyncTask{
             do await(fun(){Some(Base())})
             println("1")
             do await(fun(){Some(Base())})
             println("2")
+            do await(fun(){Some(Base())})
+            println("3")
+        }
         }
     }
 }
