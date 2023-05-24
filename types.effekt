@@ -11,6 +11,7 @@ type EventData {
 type Either[T1, T2]{
     Left(t: T1)
     Right(t: T2)
+    Both(t1: T1, t2: T2)
 }
 
 type Poll = => Option[EventData] at {io, global}
