@@ -1,0 +1,17 @@
+module reactive/jsbackend/JSInput
+
+import reactive/jsbackend/JSPromise
+import reactive/types
+
+extern interface JSInput
+
+extern io def ex_newInput(): JSInput at {io} = "new Input()"
+
+extern io def ex_onInput(input: JSInput at {io}): Int = "input.onInput()"
+
+extern io def ex_getPromise(input: JSInput at {io}, id: Int): JSPromise = "input.getPromise(id)"
+
+def onInput( input: JSInput at {io}): Poll = {
+    val id = ex_onInput(input)
+    fun(){input.ex_getPromise(id).poll()}
+}

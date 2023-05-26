@@ -4,10 +4,18 @@ class Observable {
         this.events = {}
     }
 
-    addEvent() {
+    addPromise() {
         this.eventCounter++
         this.events[this.eventCounter] = {status: "waiting", type: undefined, data: undefined}
         return this.eventCounter
+    }
+
+    getPromise(id) {
+        if(id in this.events){
+            return this.events[id]
+        } else {
+           throw new Error("Event with: " + id + "does not exist")
+        }
     }
 
     putData(id, type, data){
@@ -23,23 +31,17 @@ class Observable {
             throw new Error("Event does not exits in Oberservable")
         }
     }
-
-    getEvent(id) {
-        
-            if(id in this.events){
-                return this.events[id]
-            } else {
-                return  {status: "error", type: "string", data: "Event does not exist"}
-            }
-    }
-
 }
 
-class Timer extends Observable {
+class Timer {
+    constructor(){
+        this.obs = new Observable()
+    }
+
     waitFor(ms) {
-        let id = this.addEvent()
+        let id = this.obs.addPromise()
         setTimeout(() => {
-            this.putData(
+            this.obs.putData(
                 id,  
                 "int", 
                 Date.now() 
@@ -47,22 +49,29 @@ class Timer extends Observable {
         }, ms)
         return id
     }
+
+    getPromise(id){
+        return this.obs.getPromise(id)
+    }
 }
 
-class Input extends Observable {
+class Input {
     constructor() {
-        super()
+        this.obs = new Observable()
         this.readline = require('readline')
         this.rl = this.readline.createInterface(process.stdin, process.stdout);
     }
 
     onInput() {
-        let id = this.addEvent()
+        let id = this.obs.addPromise()
         this.rl.on("line", data => {
-                this.putData(id, "string", data)
+                this.obs.putData(id, "string", data)
                 this.rl.close()
         })
-    
         return id
+    }
+
+    getPromise(id){
+        return this.obs.getPromise(id)
     }
 }
