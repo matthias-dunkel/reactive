@@ -10,7 +10,6 @@ def asyncTask[T]{ task: => T / Async }: T / {Scheduling} = {
     p = fun(){ 
         try {
             val t = Some(task())
-            p = fun(){t}
             t
         } with Async {
                               // Stage 3: Await
@@ -32,7 +31,7 @@ def asyncTask[T]{ task: => T / Async }: T / {Scheduling} = {
     
     def loop(): T = {
         p() match {
-            case Some(d) => d
+            case Some(d) => do tick(); d
             case None() => do tick(); loop()
         }
     }
