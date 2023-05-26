@@ -11,14 +11,12 @@ def main() = {
                 println("a")
                 do await(fun(){Some(Base())})
                 println("b")
-            1
             }
         }{
             asyncTask{
             do await(fun(){Some(Base())})
             println("1")
-            do await(fun(){Some(Base())})
-            println("2")}
+            } 
         }
     }
 }

@@ -2,22 +2,24 @@ module reactive/jsbackend/tests/bothAreDone
 import reactive/types
 import reactive/scheduling  
 import reactive/effects
+import reactive/asyncTask
 import reactive/jsbackend/scheduler
-import reactive/jsbackend/backend
+import reactive/jsbackend/JStimer
 
 def main() = {
     finalWithJSBackend{
-        var timer = createTimer()
-        bothAreDone{
+        var timer = ex_newTimer()
+        bothAreDone{asyncTask{   
             do await(timer.waitFor(200))
             println("a")
             do await(timer.waitFor(200))
             println("b")
-        }{
+        }}
+        {asyncTask{
             do await(timer.waitFor(200))
             println("1")
             do await(timer.waitFor(200))
             println("2")
-        }
+        }}
     }
 }

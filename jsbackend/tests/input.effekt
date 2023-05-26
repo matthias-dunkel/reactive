@@ -3,26 +3,31 @@ import reactive/asyncTask
 import reactive/types
 import reactive/scheduling  
 import reactive/effects
-import reactive/jsbackend/backend
+import reactive/jsbackend/JSInput
+import reactive/jsbackend/JSTimer
 import reactive/jsbackend/scheduler
 
 
 def main() = {
     finalWithJSBackend{
         oneIsDone {
-            var input = createInput()
-            println("wait for input")
-            do await(input.onInput()) match {
-                case StringData(text) => println(text)
-                case Error(e) => println(e)
-                case _ => ()
-            }
+            asyncTask {
+                var input = ex_newInput()
+                println("wait for input")
+                do await(input.onInput()) match {
+                    case StringData(text) => println(text)
+                    case Error(e) => println(e)
+                    case _ => ()
+                }
+            
             println("done")
-        }
+        }}
         {
-            var timer = createTimer()
+        asyncTask{
+            var timer = ex_newTimer()
             do await(timer.waitFor(2000))
             println("too slow")
-        }
+        }}
+        println("done")
     }
 }

@@ -1,0 +1,14 @@
+module reactive/tests/asyncTask
+
+import reactive/asyncTask
+import reactive/scheduling
+import reactive/effects
+import reactive/types
+
+def main() = {
+    run[Nothing]{
+        forever{
+            println("hello")
+        }
+    }
+}
