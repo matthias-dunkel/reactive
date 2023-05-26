@@ -4,11 +4,13 @@ import reactive/effects
 
 extern io def ex_nextIteration[A]{f: => A}: Unit = "setTimeout(() => f().run(), 0)"
 
-def finalWithJSBackend{f: => Unit / Scheduling}: Unit = {
+extern pure def exit(): Unit = "process.exit(0)"
+
+def finalWithJSBackend[T]{f: => T / Scheduling}: Unit = {
     try{
         f()
+        exit()
     } with Scheduling {
-        def done() = ()
         def tick() = ex_nextIteration{resume(())}
     }
 }
