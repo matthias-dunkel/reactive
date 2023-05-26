@@ -3,27 +3,28 @@ module reactive/interleave
 import immutable/option
 import reactive/types
 import reactive/effects
+
 def interleave[T1, T2, R]{ task1: => T1 / Scheduling } {task2: => T2 / Scheduling } {loop: {() => Option[T1]}{() => Option[T2]} => R / Scheduling}: R / Scheduling = {
     var p1: => Option[T1] at {this, task1} = fun(){None()}
     var p2: => Option[T2] at {this, task2} = fun(){None()}
-
+    
     p1 = fun(){
         try {
-            val temp = Some(task1())
-            p1 = fun(){ temp }
-            temp
+            val t = Some(task1())
+            p1 = fun(){t}
+            t
         } with Scheduling {
-            def tick() = {p1 = fun(){ resume(()); None() }; None()}
+            def tick() = {p1 = fun(){ resume(()) }; None()}
         }
     }
 
     p2 = fun(){
         try {
-            val temp = Some(task2())
-            p2 = fun(){ temp }
-            temp
+            val t = Some(task2())
+            p2 = fun(){t}
+            t
         } with Scheduling {
-            def tick() = {p2 = fun(){ resume(()); None() }; None()}
+            def tick() = {p2 = fun(){ resume(()) }; None()}
         }
     }
 
@@ -40,14 +41,12 @@ def bothAreDone[T1, T2] {task1: => T1 / Scheduling} {task2: => T2 / Scheduling}:
     interleave{task1}{task2}{loop}
 }
 
-
-
 def oneIsDone[T1, T2]{ task1: => T1 / Scheduling } {task2: => T2 / Scheduling }: Either[T1, T2] / Scheduling = {
-    def loop{p1: => Option[T1]} {p2: => Option[T2]}: Either[T1, T2] / Scheduling= {
+    def loop{p1: => Option[T1]} {p2: => Option[T2]}: Either[T1, T2] / Scheduling = {
         (p1(), p2()) match {
             case (None(), None()) => do tick(); loop{p1}{p2}
             case (Some(t1), None()) => do tick(); Left(t1)
-            case (None(), Some(t2)) => do tick();  Right(t2)
+            case (None(), Some(t2)) => do tick(); Right(t2)
             case(Some(t1), Some(t2)) => do tick();  Both(t1, t2)
         }
     }

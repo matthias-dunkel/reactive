@@ -5,32 +5,33 @@ import reactive/effects
 
 def asyncTask[T]{ task: => T / Async }: T / {Scheduling} = {
     // Stage 1: Initialize process
-    var p = fun(){()} 
-    var r = None()
+    var p = fun(){None()} 
     // Stage 2: try task
     p = fun(){ 
         try {
-            r = Some(task())
+            val t = Some(task())
+            p = fun(){t}
+            t
         } with Async {
                               // Stage 3: Await
             def await(poll) = {
-                var temp = fun(){()}
+                var temp = fun(){None()}
                 temp = fun() {
                     poll() match {
                                        // Stay in Stage 3.
-                        case None() => p = temp
+                        case None() => p = temp; None()
                                        // Go back to Stage 2
-                        case Some(v) => p = fun(){ resume(v) }
+                        case Some(v) => p = fun(){ resume(v) }; None()
                     }
                 }
                 p = temp
+                None()
             }
         }
     }
     
     def loop(): T = {
-        p()
-        r match {
+        p() match {
             case Some(d) => d
             case None() => do tick(); loop()
         }
