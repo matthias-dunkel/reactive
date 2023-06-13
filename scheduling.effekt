@@ -11,7 +11,8 @@ def interleave[T1, T2, R]{ task1: => T1 / Scheduling } {task2: => T2 / Schedulin
     p1 = fun(){
         try {
             val t = Some(task1())
-            t
+            p1 = fun(){t}
+            t  
         } with Scheduling {
             def tick() = {p1 = fun(){ resume(()) }; None()}
         }
@@ -20,6 +21,7 @@ def interleave[T1, T2, R]{ task1: => T1 / Scheduling } {task2: => T2 / Schedulin
     p2 = fun(){
         try {
             val t = Some(task2())
+            p2 = fun(){t}
             t
         } with Scheduling {
             def tick() = {p2 = fun(){ resume(()) }; None()}
