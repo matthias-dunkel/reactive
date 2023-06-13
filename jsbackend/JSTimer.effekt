@@ -5,13 +5,13 @@ import reactive/types
 
 extern interface JSTimer
 
-extern io def ex_newTimer(): JSTimer at {io}= "new Timer()"
+extern io def ex_newTimer(): JSTimer at {global}= "new Timer()"
 
-extern io def ex_waitFor(timer: JSTimer at {io}, ms: Int ): Int = "timer.waitFor(ms)"
+extern io def ex_waitFor(timer: JSTimer at {global}, ms: Int ): Int = "timer.waitFor(ms)"
 
-extern io def ex_getPromise(timer: JSTimer at {io}, id: Int): JSPromise = "timer.getPromise(id)"
+extern io def ex_getPromise(timer: JSTimer at {global}, id: Int): JSPromise = "timer.getPromise(id)"
 
-def waitFor(timer: JSTimer at {io}, ms: Int): Poll = {
+def waitFor(timer: JSTimer at {global}, ms: Int): Poll = {
     val id = ex_waitFor(timer, ms)
     fun(){ timer.ex_getPromise(id).poll() }
 }
