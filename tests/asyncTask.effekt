@@ -4,12 +4,13 @@ import reactive/asyncTask
 import reactive/scheduling
 import reactive/effects
 import reactive/types
+import reactive/internal
 
 def main() = {
     run{
         asyncTask{
             println("await")
-            do await(fun(){Some(Base())})
+            do await(waitTicks(1))
             println("awaited")
         }
     }
