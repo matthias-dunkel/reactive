@@ -1,0 +1,9 @@
+import reactive/asyncTask
+import reactive/scheduling
+import reactive/effects
+import reactive/types
+import reactive/internal
+def task() = asyncTask{
+    do await(waitTicks(1))
+}
+def main() = run{ bothAreDone{task}{task}}
