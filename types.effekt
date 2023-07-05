@@ -1,12 +1,6 @@
 module reactive/types
 import immutable/option
 
-type EventData {
-    Base()
-    IntData(n: Int)
-    StringData(text: String)
-    Error(msg: String)
-}
 
 type Either[T1, T2]{
     Left(t: T1)
@@ -14,4 +8,6 @@ type Either[T1, T2]{
     Both(t1: T1, t2: T2)
 }
 
-type Poll = => Option[EventData] at {io, global}
+record ReactiveError()
+
+type Poll[E] = => Option[E] / Exception[ReactiveError] at {io, global} 
