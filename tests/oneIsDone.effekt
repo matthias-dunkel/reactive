@@ -7,14 +7,14 @@ def main() = {
     run{
         oneIsDone{
             asyncTask{
-                do await(fun(){Some(Base())})
+                do await(fun(){Some(())})
                 println("a")
-                do await(fun(){Some(Base())})
+                do await(fun(){Some(())})
                 println("b")
             }
         }{
             asyncTask{
-            do await(fun(){Some(Base())})
+            do await(fun(){Some(())})
             println("1")
             } 
         }

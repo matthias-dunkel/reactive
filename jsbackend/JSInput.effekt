@@ -11,7 +11,7 @@ extern io def ex_onInput(input: JSInput at {global}): Int = "input.onInput()"
 
 extern io def ex_getPromise(input: JSInput at {global}, id: Int): JSPromise = "input.getPromise(id)"
 
-def onInput( input: JSInput at {global}): Poll = {
+def onInput(input: JSInput at {global}): Poll[String] = {
     val id = ex_onInput(input)
-    fun(){input.ex_getPromise(id).poll()}
+    fun(){input.ex_getPromise(id).poll("string")}
 }

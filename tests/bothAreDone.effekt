@@ -7,17 +7,17 @@ def main() = {
     run{
         bothAreDone{
             asyncTask{
-                do await(fun(){Some(Base())})
+                do await(fun(){Some(())})
                 println("a")
-                do await(fun(){Some(Base())})
+                do await(fun(){Some(())})
                 println("b")
             }
         }{asyncTask{
-            do await(fun(){Some(Base())})
+            do await(fun(){Some(())})
             println("1")
-            do await(fun(){Some(Base())})
+            do await(fun(){Some(())})
             println("2")
-            do await(fun(){Some(Base())})
+            do await(fun(){Some(())})
             println("3")
         }
         }

@@ -6,30 +6,30 @@ extern include "./backend.js"
 
 extern type JSPromise
 
+record WrongEventDataType()
+
 extern pure def ex_getStatus(e: JSPromise): String = "e.status"
 
 extern pure def ex_getData[A](e: JSPromise): A = "e.data"
 
 extern pure def ex_getType(e: JSPromise): String = "e.type"
 
-def poll(promise: JSPromise): Option[EventData] = {
-    val status = promise.ex_getStatus()
+def poll[R]( promise: JSPromise, dtype: String): Option[R] / Exception[ReactiveError] = {
+        val status = promise.ex_getStatus()
 
-    if(status == "fullfilled") {
-        val d_type = promise.ex_getType()
+        if(status == "fullfilled") {
+            val d_type = promise.ex_getType()
        
-        if(d_type == "int"){
-            Some(IntData(promise.ex_getData()))
-         }else if(d_type == "string"){
-            Some(StringData(promise.ex_getData()))
-         } 
-        else {
-            Some(Error("Unkown Datatype. JS Backend corrupted."))
+            if(d_type == dtype){
+                Some(promise.ex_getData())
+            } 
+            else {
+                do raise(ReactiveError(), "Wrong event data type")
+            }
+        } else if(status == "error") {
+            val data = promise.ex_getData[String]()
+            do raise(ReactiveError(), data)
+        } else {
+            None()
         }
-    } else if(status == "error") {
-        val data = promise.ex_getData[String]()
-        Some(Error(data))
-    } else {
-        None()
-    }
 }

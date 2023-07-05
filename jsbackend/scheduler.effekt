@@ -1,16 +1,18 @@
 module reactive/jsbackend/scheduler
 
 import reactive/effects
-
+import reactive/types
 extern io def ex_nextIteration[A]{f: => A}: Unit = "setTimeout(() => f().run(), 0)"
 
 extern pure def exit(): Unit = "process.exit(0)"
 
-def finalWithJSBackend[T]{f: => T / Scheduling}: Unit = {
+def finalWithJSBackend[T]{f: => T / {Scheduling, Exception[ReactiveError]}}: Unit = {
     try{
         f()
         exit()
     } with Scheduling {
         def tick() = ex_nextIteration{resume(())}
+    } with Exception[ReactiveError] {
+        def raise[ReactiveError](e, msg) = println(msg) 
     }
 }

@@ -14,13 +14,9 @@ def main() = {
             asyncTask {
                 var input = ex_newInput()
                 println("wait for input")
-                do await(input.onInput()) match {
-                    case StringData(text) => println(text)
-                    case Error(e) => println(e)
-                    case _ => ()
-                }
+                println(do await(input.onInput()))
             
-            println("done")
+         
         }}
         {
         asyncTask{
@@ -28,6 +24,5 @@ def main() = {
             do await(timer.waitFor(2000))
             println("too slow")
         }}
-        println("done")
     }
 }

@@ -14,11 +14,4 @@ def main() = {
             println("awaited")
         }
     }
-    run{
-        asyncTask{
-            println("await")
-            do await(fun(){Some(Error("Error"))})
-            println("awaited")
-        }
-    }
 }

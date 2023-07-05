@@ -3,7 +3,7 @@ module reactive/effects
 import reactive/types
 
 effect Async {
-    def await(poll: Poll): EventData
+    def await[E](poll: Poll[E]): E
 }
 
 effect Scheduling {

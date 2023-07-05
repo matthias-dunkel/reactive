@@ -11,7 +11,7 @@ extern io def ex_waitFor(timer: JSTimer at {global}, ms: Int ): Int = "timer.wai
 
 extern io def ex_getPromise(timer: JSTimer at {global}, id: Int): JSPromise = "timer.getPromise(id)"
 
-def waitFor(timer: JSTimer at {global}, ms: Int): Poll = {
+def waitFor(timer: JSTimer at {global}, ms: Int): Poll[Int] = {
     val id = ex_waitFor(timer, ms)
-    fun(){ timer.ex_getPromise(id).poll() }
+    fun(){ timer.ex_getPromise(id).poll("int")}
 }
