@@ -4,9 +4,9 @@ import immutable/option
 import reactive/types
 import reactive/effects
 
-def interleave[T1, T2, R]{ task1: => T1 / Scheduling } {task2: => T2 / Scheduling } {loop: {() => Option[T1]}{() => Option[T2]} => R }: R = {
-    var p1: => Option[T1] at {this, task1} = fun(){None()}
-    var p2: => Option[T2] at {this, task2} = fun(){None()}
+def interleave[T1, T2, R]{ task1: => T1 / Scheduling } {task2: => T2 / Scheduling } {loop: {() => Option[T1]}{() => Option[T2]} => R }: R = region this {
+    var p1: => Option[T1] at {this, task1} in this = fun(){None()}
+    var p2: => Option[T2] at {this, task2} in this = fun(){None()}
     
     p1 = fun(){
         try {
