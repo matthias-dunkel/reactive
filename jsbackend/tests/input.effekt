@@ -8,21 +8,14 @@ import reactive/jsbackend/JSTimer
 import reactive/jsbackend/scheduler
 
 
-def main() = {
-    finalWithJSBackend{
-        oneIsDone {
-            asyncTask {
-                var input = ex_newInput()
-                println("wait for input")
-                println(do await(input.onInput()))
-            
-         
-        }}
-        {
-        asyncTask{
-            var timer = ex_newTimer()
-            do await(timer.waitFor(2000))
-            println("too slow")
-        }}
-    }
-}
+def main() = finalWithJSBackend { oneIsDone {
+    asyncTask {
+        var input = ex_newInput()
+        println("wait for input")
+        println(do await(input.onInput()))
+    }}{
+    asyncTask{
+        var timer = ex_newTimer()
+        do await(timer.waitFor(2000))
+        println("too slow")
+}}}
